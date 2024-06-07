@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  HttpException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -23,7 +24,7 @@ export class BookService {
 
   async getBorrowedBooks(
     memberCode: string,
-  ): Promise<Array<Omit<TBook, 'stock'>>> {
+  ): Promise<IGetBorrowedBooksResponse> {
     const memberData = this.db.member.findUnique({
       where: {
         code: memberCode,
@@ -31,11 +32,19 @@ export class BookService {
     });
     const booksData = this.db.bookBorrowedByMember.findMany({
       where: {
-        memberCode: {
-          equals: memberCode,
-        },
+        AND: [
+          {
+            memberCode: {
+              equals: memberCode,
+            },
+          },
+          {
+            returnedAt: null,
+          },
+        ],
       },
       select: {
+        borrowedAt: true,
         book: {
           select: {
             code: true,
@@ -51,13 +60,20 @@ export class BookService {
       throw new UnauthorizedException('Member does not exist.');
     }
 
-    const borrowedBooks: Array<Omit<TBook, 'stock'>> = books.map((book) => ({
-      author: book.book.code,
-      title: book.book.title,
-      code: book.book.code,
+    const borrowedBooks: TBorrowedBook[] = books.map((book) => ({
+      bookCode: book.book.code,
+      bookTitle: book.book.title,
+      borrowedAt: book.borrowedAt,
     }));
 
-    return borrowedBooks;
+    return {
+      success: true,
+      member: {
+        memberCode: member.code,
+        memberName: member.name,
+      },
+      borrowedBooks,
+    };
   }
 
   async borrowBooks(dto: IBorrowBookDto): Promise<IResponse> {
@@ -113,16 +129,21 @@ export class BookService {
       });
 
       if (books.length < 1) {
-        return {
-          success: false,
-          message: "The books you requested doesn't exists.",
-        };
+        throw new BadRequestException(
+          "The books you requested doesn't exists.",
+        );
       }
 
       const filteredBooks = {
         available: books.filter((book) => book.stock > 0),
         unavailable: books.filter((book) => book.stock === 0),
       };
+
+      if (filteredBooks.available.length < 1) {
+        throw new BadRequestException(
+          `${filteredBooks.unavailable.map((book) => book.code).join(',')} is not available.`,
+        );
+      }
 
       const updateMemberPenaltyStatus = this.db.member // Updating member penalty status
         .update({
@@ -139,8 +160,9 @@ export class BookService {
             '[PROMISE ERROR]: Member penalty status update failed: ',
             err,
           );
-          throw new Error(
+          throw new HttpException(
             'There was a problem while trying to update the member penalty status',
+            500,
           );
         });
 
@@ -157,8 +179,9 @@ export class BookService {
         )
         .catch((err) => {
           console.error('[PROMISE ERROR]: Book borrow failed: ', err);
-          throw new Error(
+          throw new HttpException(
             'There was a problem while trying to borrow the book, please try again later.',
+            500,
           );
         });
 
@@ -190,18 +213,14 @@ export class BookService {
 
       return {
         success: true,
-        message: `${filteredBooks.available.map((book) => book.code).join(',')} has been successfully borrowed. ${filteredBooks.unavailable.length > 0 && (filteredBooks.unavailable.map((book) => book.code).join(','), 'is not available.')}`,
+        message: `${filteredBooks.available.map((book) => book.code).join(',')} has been successfully borrowed.`,
       };
     } catch (error) {
       console.error(
         'An error occurred while trying to borrow the book: ',
         error,
       );
-      return {
-        success: false,
-        message:
-          'There was a problem while trying to borrow the book, please try again later.',
-      };
+      throw error;
     }
   }
 
