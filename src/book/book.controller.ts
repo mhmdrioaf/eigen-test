@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
 } from '@nestjs/common';
 import { BookService } from './book.service';
@@ -12,6 +13,7 @@ import {
   ApiBody,
   ApiForbiddenResponse,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -103,7 +105,7 @@ export class BookController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('borrowed')
+  @Get('borrowed/:memberCode')
   @ApiOperation({
     summary: 'Get all books that are currently borrowed by a member',
   })
@@ -182,17 +184,20 @@ export class BookController {
       },
     },
   })
-  @ApiBody({
+  @ApiParam({
     required: true,
+    name: 'memberCode',
+    allowEmptyValue: false,
+    description:
+      'The member code, please note that this parameter is case-sensitive, so please provide the correct member code',
     schema: {
-      example: {
-        memberCode: 'M003',
-      },
+      type: 'string',
+      example: 'M003',
     },
   })
-  async getBorrowedBooks(@Body() body: { memberCode: string }) {
+  async getBorrowedBooks(@Param() param: { memberCode: string }) {
     try {
-      return await this.bookService.getBorrowedBooks(body.memberCode);
+      return await this.bookService.getBorrowedBooks(param.memberCode);
     } catch (error) {
       throw error;
     }
