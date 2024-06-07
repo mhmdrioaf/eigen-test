@@ -43,6 +43,7 @@ export class MemberService {
       const members = MEMBERS;
       await this.db.member.createMany({
         data: members,
+        skipDuplicates: true,
       });
 
       return {

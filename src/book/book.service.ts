@@ -359,6 +359,7 @@ export class BookService {
     try {
       await this.db.book.createMany({
         data: books,
+        skipDuplicates: true,
       });
 
       return {
