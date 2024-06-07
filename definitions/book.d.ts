@@ -4,3 +4,8 @@ type TBook = {
   author: string;
   stock: number;
 };
+
+interface IBorrowBookDto {
+  memberCode: string;
+  bookCodes: string[];
+}
