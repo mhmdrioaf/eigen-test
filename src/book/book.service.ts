@@ -145,26 +145,28 @@ export class BookService {
         );
       }
 
-      const updateMemberPenaltyStatus = this.db.member // Updating member penalty status
-        .update({
-          where: {
-            code: dto.memberCode,
-          },
-          data: {
-            isPenalized: false,
-            penalizedAt: null,
-          },
-        })
-        .catch((err) => {
-          console.error(
-            '[PROMISE ERROR]: Member penalty status update failed: ',
-            err,
-          );
-          throw new HttpException(
-            'There was a problem while trying to update the member penalty status',
-            500,
-          );
-        });
+      const updateMemberPenaltyStatus =
+        dto.isUpdatePenaltyStatus &&
+        this.db.member // Updating member penalty status
+          .update({
+            where: {
+              code: dto.memberCode,
+            },
+            data: {
+              isPenalized: false,
+              penalizedAt: null,
+            },
+          })
+          .catch((err) => {
+            console.error(
+              '[PROMISE ERROR]: Member penalty status update failed: ',
+              err,
+            );
+            throw new HttpException(
+              'There was a problem while trying to update the member penalty status',
+              500,
+            );
+          });
 
       const borrowBooks = this.db
         .$transaction(
