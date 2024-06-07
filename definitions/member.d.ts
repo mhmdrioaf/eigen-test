@@ -4,3 +4,7 @@ type TMember = {
   isPenalized: boolean;
   penalizedAt: Date | null;
 };
+
+type TMemberWithBooks = TMember & {
+  borrowedBooks: number;
+};
