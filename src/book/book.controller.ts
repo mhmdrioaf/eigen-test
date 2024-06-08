@@ -323,7 +323,8 @@ export class BookController {
   })
   @ApiForbiddenResponse({
     status: HttpStatus.FORBIDDEN,
-    description: 'The response if the member is currently penalized',
+    description:
+      'The response if the member is currently penalized. To test this response, please use the member code M001',
     schema: {
       type: 'object',
       properties: {
