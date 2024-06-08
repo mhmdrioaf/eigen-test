@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { MemberService } from './member.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -54,31 +54,5 @@ export class MemberController {
   })
   async getAllMembers(): Promise<TMemberWithBooks[]> {
     return this.memberService.getAllMembers();
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @Post('populate')
-  @ApiOperation({ summary: 'Populate members data' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Members data populated',
-    schema: {
-      type: 'object',
-      properties: {
-        success: {
-          type: 'boolean',
-          description: 'The request status',
-          example: true,
-        },
-        message: {
-          type: 'string',
-          description: 'The response message',
-          example: 'Members has been successfully populated.',
-        },
-      },
-    },
-  })
-  async populateMembers(): Promise<IResponse> {
-    return this.memberService.populateMembers();
   }
 }

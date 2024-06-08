@@ -23,15 +23,6 @@ describe('BookService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('populateBooks', () => {
-    it('should return the success message', async () => {
-      await service.populateBooks().then((res) => {
-        expect(res.success).toBe(true);
-        expect(res.message).toBe('The books has been successfully populated.');
-      });
-    });
-  });
-
   describe('getAvailableBooks', () => {
     it('should return an array of books', async () => {
       const availableBooks = await service.getAvailableBooks();

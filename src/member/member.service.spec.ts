@@ -30,13 +30,4 @@ describe('MemberService', () => {
       });
     });
   });
-
-  describe('populateMembers', () => {
-    it('should return the success message', async () => {
-      await service.populateMembers().then((res) => {
-        expect(res.success).toBe(true);
-        expect(res.message).toBe('Members populated successfully');
-      });
-    });
-  });
 });

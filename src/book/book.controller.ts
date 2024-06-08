@@ -25,36 +25,6 @@ export class BookController {
   constructor(private bookService: BookService) {}
 
   @HttpCode(HttpStatus.OK)
-  @Post('populate')
-  @ApiOperation({ summary: 'Populate books data' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Books data populated',
-    schema: {
-      type: 'object',
-      properties: {
-        success: {
-          type: 'boolean',
-          description: 'The request status',
-          example: true,
-        },
-        message: {
-          type: 'string',
-          description: 'The response message',
-          example: 'Books has been successfully populated.',
-        },
-      },
-    },
-  })
-  async populateBooks() {
-    try {
-      return await this.bookService.populateBooks();
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  @HttpCode(HttpStatus.OK)
   @Get()
   @ApiOperation({
     summary: 'Get all books that are currently not borrowed by any member',
