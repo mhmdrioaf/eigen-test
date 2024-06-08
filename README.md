@@ -24,25 +24,36 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+[Nest](https://github.com/nestjs/nest) based Libary API
 
-## Installation
+## Prerequisite
+This API requires a database that currently running locally and/or remotely.  
+To connect to the database please provide the database connection url like in the env.example file, or like this example below:
+
+```
+DATABASE_URL="postgresql://username:password@localhost:5432/db?schema=public"
+```
+
+## Initializations
 
 ```bash
+# installing the dependencies
 $ npm install
+
+# apply prisma migration to the database
+$ npx prisma migrate dev
+
+# generate prisma client (if doesn't generated automatically)
+$ npx prisma generate
+
+# seed the database
+$ npx prisma db seed
 ```
 
 ## Running the app
 
 ```bash
-# development
 $ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
 ```
 
 ## Test
@@ -50,24 +61,8 @@ $ npm run start:prod
 ```bash
 # unit tests
 $ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 
-## Support
+## API Documentations
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+After the app initialized successfully and is currently running at http://localhost:3000, please visit [/docs](http://localhost:3000/docs) endpoint to see the Swagger API Documentations
