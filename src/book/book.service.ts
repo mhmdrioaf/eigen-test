@@ -6,11 +6,43 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import { BOOKS } from 'src/mock/book.mock';
 
 @Injectable()
 export class BookService {
   constructor(private db: PrismaService) {}
+
+  BOOKS: TBook[] = [
+    {
+      code: 'JK-45',
+      title: 'Harry Potter',
+      author: 'J.K Rowling',
+      stock: 1,
+    },
+    {
+      code: 'SHR-1',
+      title: 'A Study in Scarlet',
+      author: 'Arthur Conan Doyle',
+      stock: 1,
+    },
+    {
+      code: 'TW-11',
+      title: 'Twilight',
+      author: 'Stephenie Meyer',
+      stock: 1,
+    },
+    {
+      code: 'HOB-83',
+      title: 'The Hobbit, or There and Back Again',
+      author: 'J.R.R. Tolkien',
+      stock: 1,
+    },
+    {
+      code: 'NRN-7',
+      title: 'The Lion, the Witch and the Wardrobe',
+      author: 'C.S. Lewis',
+      stock: 1,
+    },
+  ];
 
   async getAvailableBooks() {
     return await this.db.book.findMany({
@@ -355,7 +387,7 @@ export class BookService {
   }
 
   async populateBooks(): Promise<IResponse> {
-    const books = BOOKS;
+    const books = this.BOOKS;
     try {
       await this.db.book.createMany({
         data: books,
@@ -364,7 +396,7 @@ export class BookService {
 
       return {
         success: true,
-        message: 'Books has been successfully created.',
+        message: 'The books has been successfully populated.',
       };
     } catch (error) {
       console.error(
@@ -377,5 +409,29 @@ export class BookService {
           'There was a problem while trying to create the books, please try again later.',
       };
     }
+  }
+
+  async reset() {
+    const resetMember = this.db.member.updateMany({
+      where: {
+        code: {
+          not: 'M001',
+        },
+      },
+      data: {
+        isPenalized: false,
+        penalizedAt: null,
+      },
+    });
+
+    const resetBooks = this.db.book.updateMany({
+      data: {
+        stock: 1,
+      },
+    });
+
+    const resetBorrowedBooks = this.db.bookBorrowedByMember.deleteMany();
+
+    await Promise.all([resetMember, resetBooks, resetBorrowedBooks]);
   }
 }
